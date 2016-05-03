@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
@@ -45,13 +47,20 @@ public class Main extends Application {
 		initHash();
 		initBtnsArray();
 		
+		
 		Group root = new Group();
 		ScrollBar sc = new ScrollBar();
 		Scene scene = new Scene(root, 800, 600);
-		scene.setFill(Color.LIGHTBLUE);
+		scene.getStylesheets().add("main.css");
+		scene.setFill(Color.MISTYROSE);
 		pS.setScene(scene);
 		pS.setTitle("Movie GUI");
 		root.getChildren().addAll(getGrid(),sc);
+		
+		DoubleProperty width = vbox.prefWidthProperty();
+		DoubleProperty height = vbox.prefHeightProperty();
+		width.bind(Bindings.selectDouble(vbox.sceneProperty(), "width"));
+		height.bind(Bindings.selectDouble(vbox.sceneProperty(), "height"));
 		
 		vbox.setLayoutX(5);
 		vbox.setSpacing(2);
@@ -67,9 +76,6 @@ public class Main extends Application {
 				vbox.setLayoutY(-new_val.doubleValue());
 			}
 		});
-
-		
-		
 		System.out.println(fl.length);
 		pS.show();
 	}
@@ -89,6 +95,8 @@ public class Main extends Application {
     public void initBtnsArray() {
 	        for(int i = 0; i < btns.length; i++) {
 	            btns[i] = new Button(hash.get(i));
+	            btns[i].setAlignment(Pos.CENTER);
+	            btns[i].setOnAction(new ButtonListener());
 	        }
 	    }
     public void initHash() {
