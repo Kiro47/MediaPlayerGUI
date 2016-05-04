@@ -12,6 +12,8 @@ public class ButtonListener implements EventHandler<ActionEvent> {
 		if (e.getSource() instanceof Button) {
 			Button b = (Button) e.getSource();
 		//	b.setEffect();
+			String btnText = (String) b.getText();
+			System.out.println(btnText);
 		}
 	}
 

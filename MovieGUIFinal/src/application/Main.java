@@ -8,14 +8,20 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -33,28 +39,32 @@ public class Main extends Application {
 	static FileChooser fc = new FileChooser();
 	File[] fl = fc.getInitialDirectory().listFiles();
 	HashMap<Integer, String> hash = new HashMap<Integer, String>();
-	VBox vbox;
-	
-	   private Button[] btns = new Button[fl.length];
+	TilePane vbox;
+	public Stage window;
+	public Scene scene,movie;
+	private Button[] btns = new Button[fl.length];
+	public static File loc;
 	   
 	public static void main(String[] args) {
-		fc.setInitialDirectory(new File("F:\\Movies"));
+		fc.setInitialDirectory(new File("C:\\Movies"));
 		launch(args);
 	}
 	
 	@Override
 	public void start(Stage pS) {
+		window = pS;
 		initHash();
 		initBtnsArray();
 		
 		
 		Group root = new Group();
 		ScrollBar sc = new ScrollBar();
-		Scene scene = new Scene(root, 800, 600);
-		scene.getStylesheets().add("main.css");
+	 scene = new Scene(root, 800, 600);
+	//	scene.getStylesheets().add("main.css");
+		
 		scene.setFill(Color.MISTYROSE);
-		pS.setScene(scene);
-		pS.setTitle("Movie GUI");
+		window.setScene(scene);
+		window.setTitle("Movie GUI");
 		root.getChildren().addAll(getGrid(),sc);
 		
 		DoubleProperty width = vbox.prefWidthProperty();
@@ -63,12 +73,12 @@ public class Main extends Application {
 		height.bind(Bindings.selectDouble(vbox.sceneProperty(), "height"));
 		
 		vbox.setLayoutX(5);
-		vbox.setSpacing(2);
 		vbox.setAlignment(Pos.CENTER);
 		
 		sc.setLayoutX(scene.getWidth() - sc.getWidth());
 		sc.setMin(0.0);
 		sc.setOrientation(Orientation.VERTICAL);
+		sc.setMaxHeight(scene.getHeight());
 		
 		
 		sc.valueProperty().addListener(new ChangeListener<Number>() {
@@ -77,14 +87,13 @@ public class Main extends Application {
 			}
 		});
 		System.out.println(fl.length);
-		pS.show();
+		window.show();
 	}
 	
     public Pane getGrid() {
         int i = 0;
-       vbox = new VBox();
+       vbox = new TilePane();
        vbox.applyCss();
-       
        for (Button b: btns) {
     	   vbox.getChildren().add(i, b);
     	   i++;
@@ -96,7 +105,31 @@ public class Main extends Application {
 	        for(int i = 0; i < btns.length; i++) {
 	            btns[i] = new Button(hash.get(i));
 	            btns[i].setAlignment(Pos.CENTER);
-	            btns[i].setOnAction(new ButtonListener());
+	            btns[i].setOnAction(e -> {
+
+	        		if (e.getSource() instanceof Button) {
+	        			Button b = (Button) e.getSource();
+	        			String btnText = (String) b.getText();
+	        			System.out.println(btnText);
+	        			 loc = new File(fc.getInitialDirectory().getAbsolutePath() + "//" + btnText +".mp4");
+						try {
+							Parent root = FXMLLoader.load(getClass().getResource("/application/MediaView.fxml"));
+		        			movie = new Scene(root);
+		        			window.setScene(movie);
+		        			window.show();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+	        			
+	        			
+	        		}
+	        	
+	            });
+	            btns[i].applyCss();
+	            btns[i].autosize();
+	            btns[i].setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(0.5), new Insets(5))));
+	            btns[i].setPadding(new Insets(2));
+	            
 	        }
 	    }
     public void initHash() {
