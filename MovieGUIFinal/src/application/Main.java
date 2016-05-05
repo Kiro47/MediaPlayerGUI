@@ -40,13 +40,13 @@ public class Main extends Application {
 	File[] fl = fc.getInitialDirectory().listFiles();
 	HashMap<Integer, String> hash = new HashMap<Integer, String>();
 	TilePane vbox;
-	public Stage window;
-	public Scene scene,movie;
+	public static Stage window;
+	public  Scene scene,movie;
 	private Button[] btns = new Button[fl.length];
 	public static File loc;
 	   
 	public static void main(String[] args) {
-		fc.setInitialDirectory(new File("C:\\Movies"));
+		fc.setInitialDirectory(new File("F:\\Movies"));
 		launch(args);
 	}
 	
@@ -60,7 +60,7 @@ public class Main extends Application {
 		Group root = new Group();
 		ScrollBar sc = new ScrollBar();
 	 scene = new Scene(root, 800, 600);
-	//	scene.getStylesheets().add("main.css");
+		scene.getStylesheets().add("/application/main.css");
 		
 		scene.setFill(Color.MISTYROSE);
 		window.setScene(scene);
@@ -93,7 +93,6 @@ public class Main extends Application {
     public Pane getGrid() {
         int i = 0;
        vbox = new TilePane();
-       vbox.applyCss();
        for (Button b: btns) {
     	   vbox.getChildren().add(i, b);
     	   i++;
@@ -117,6 +116,7 @@ public class Main extends Application {
 		        			movie = new Scene(root);
 		        			window.setScene(movie);
 		        			window.show();
+		        			window.setFullScreen(true);
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
@@ -125,8 +125,6 @@ public class Main extends Application {
 	        		}
 	        	
 	            });
-	            btns[i].applyCss();
-	            btns[i].autosize();
 	            btns[i].setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(0.5), new Insets(5))));
 	            btns[i].setPadding(new Insets(2));
 	            
