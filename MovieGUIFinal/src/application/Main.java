@@ -30,11 +30,11 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
 	/*
-	 * Center Buttons
-	 * Background Button Color
+	 * PRIORITY: Make that main page prettier, and show all by default....
+	 * Click on pane to pause/play
+	 * back type button
 	 * Scroll Wheel support
 	 * Arrow Scroll Support
-	 * ALL Movies need to be in it.
 	 */
 	static FileChooser fc = new FileChooser();
 	File[] fl = fc.getInitialDirectory().listFiles();

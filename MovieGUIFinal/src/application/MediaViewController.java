@@ -1,24 +1,24 @@
 package application;
 
-import java.awt.Color;
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
+import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -34,8 +34,10 @@ public class MediaViewController implements Initializable{
 	private Media me;
 	@FXML private ToolBar toolbar;
 	@FXML private ToggleButton toggleButton;
-	@FXML private ToggleButton fullscreen;;
+	@FXML private ToggleButton fullscreen;
+	@FXML private Slider volumeSlider;
 	Stage window = Main.window;
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		String path = Main.loc.getAbsolutePath();
@@ -56,7 +58,45 @@ public class MediaViewController implements Initializable{
 		DoubleProperty height = mv.fitHeightProperty();
 		width.bind(Bindings.selectDouble(mv.sceneProperty(), "width"));
 		height.bind(Bindings.selectDouble(mv.sceneProperty(), "height"));	
-		borderPane.setBackground(new Backgro[-und(new BackgroundFill(Color.DARK_GRAY, new CornerRadii(1.0), new Insets(1.0)));
+		volumeSlider.setValue(mp.getVolume() *100);
+		volumeSlider.valueProperty().addListener(new InvalidationListener() {
+			
+			@Override
+			public void invalidated(Observable observable) {
+				mp.setVolume(volumeSlider.getValue()/100);
+			}
+		});
+		borderPane.setOnMouseEntered(new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				toolbar.setVisible(true);
+				return;
+			}
+		});
+		borderPane.setOnMouseExited(new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				toolbar.setVisible(false);
+				return;
+			}
+		});
+		borderPane.setOnMouseMoved(new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				toolbar.setVisible(true);
+				return;
+			}
+		});
+		mp.setOnEndOfMedia(new Runnable() {
+			
+			@Override
+			public void run() {
+				mp.stop();
+		// change play button graphic? 
+				toggleButton.setSelected(true);
+				return;
+			}
+		});
 	}
 	public void mainAction(ActionEvent e) {
 		Status s = mp.getStatus();
@@ -90,10 +130,13 @@ public class MediaViewController implements Initializable{
 	public void fullscreen (ActionEvent e) {
 		if (window.isFullScreen() == true) {
 			window.setFullScreen(false);
+			toolbar.setVisible(true);
 			return;
 		}
 		else if (window.isFullScreen() == false) {
 			window.setFullScreen(true);
+			toolbar.setVisible(false);
+		//	borderPane.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(0.5), new Insets(0.1))));
 			return;
 		}
 	}
