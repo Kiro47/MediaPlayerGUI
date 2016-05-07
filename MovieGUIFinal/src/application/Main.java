@@ -1,5 +1,7 @@
 package application;
 	
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.HashMap;
 
@@ -17,9 +19,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
@@ -39,14 +38,14 @@ public class Main extends Application {
 	static FileChooser fc = new FileChooser();
 	File[] fl = fc.getInitialDirectory().listFiles();
 	HashMap<Integer, String> hash = new HashMap<Integer, String>();
-	TilePane vbox;
+	TilePane tilePane;
 	public static Stage window;
-	public  Scene scene,movie;
+	public static  Scene scene,movie;
 	private Button[] btns = new Button[fl.length];
 	public static File loc;
 	   
 	public static void main(String[] args) {
-		fc.setInitialDirectory(new File("F:\\Movies"));
+		fc.setInitialDirectory(new File("/Volumes/WD_Elements_Movies/Movies"));
 		launch(args);
 	}
 	
@@ -59,31 +58,35 @@ public class Main extends Application {
 		
 		Group root = new Group();
 		ScrollBar sc = new ScrollBar();
-	 scene = new Scene(root, 800, 600);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double swidth = (screenSize.getWidth() *0.9);
+		double sheight = (screenSize.getHeight() *0.9);
+	 scene = new Scene(root, swidth, sheight);
 		scene.getStylesheets().add("/application/main.css");
 		
-		scene.setFill(Color.MISTYROSE);
+		scene.setFill(Color.rgb(132, 27, 45));
 		window.setScene(scene);
-		window.setTitle("Movie GUI");
+		window.setTitle("Breena's Movies");
 		root.getChildren().addAll(getGrid(),sc);
 		
-		DoubleProperty width = vbox.prefWidthProperty();
-		DoubleProperty height = vbox.prefHeightProperty();
-		width.bind(Bindings.selectDouble(vbox.sceneProperty(), "width"));
-		height.bind(Bindings.selectDouble(vbox.sceneProperty(), "height"));
+		DoubleProperty width = tilePane.prefWidthProperty();
+		DoubleProperty height = tilePane.prefHeightProperty();
+		width.bind(Bindings.selectDouble(tilePane.sceneProperty(), "width"));
+		height.bind(Bindings.selectDouble(tilePane.sceneProperty(), "height"));
 		
-		vbox.setLayoutX(5);
-		vbox.setAlignment(Pos.CENTER);
+		tilePane.setLayoutX(3);
+		tilePane.setAlignment(Pos.CENTER);
+
 		
 		sc.setLayoutX(scene.getWidth() - sc.getWidth());
 		sc.setMin(0.0);
+		sc.setMax(1500);
 		sc.setOrientation(Orientation.VERTICAL);
-		sc.setMaxHeight(scene.getHeight());
-		
+		sc.setPrefHeight(scene.getHeight());
 		
 		sc.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val){
-				vbox.setLayoutY(-new_val.doubleValue());
+				tilePane.setLayoutY(-new_val.doubleValue());
 			}
 		});
 		System.out.println(fl.length);
@@ -92,12 +95,12 @@ public class Main extends Application {
 	
     public Pane getGrid() {
         int i = 0;
-       vbox = new TilePane();
+       tilePane = new TilePane();
        for (Button b: btns) {
-    	   vbox.getChildren().add(i, b);
+    	   tilePane.getChildren().add(i, b);
     	   i++;
        }
-       return vbox;
+       return tilePane;
     }
     
     public void initBtnsArray() {
@@ -125,8 +128,9 @@ public class Main extends Application {
 	        		}
 	        	
 	            });
-	            btns[i].setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, new CornerRadii(0.5), new Insets(5))));
-	            btns[i].setPadding(new Insets(2));
+	        //    btns[i].setTextFill(Color.WHITE);
+	        //    btns[i].setBackground(new Background(new BackgroundFill(Color.rgb(0, 35, 102), new CornerRadii(5), new Insets(5, 3, 5, 3))));
+	            btns[i].setPadding(new Insets(5, 3, 5, 3));
 	            
 	        }
 	    }

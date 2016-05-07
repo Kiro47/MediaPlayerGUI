@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -13,6 +14,8 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
@@ -36,6 +39,9 @@ public class MediaViewController implements Initializable{
 	@FXML private ToggleButton toggleButton;
 	@FXML private ToggleButton fullscreen;
 	@FXML private Slider volumeSlider;
+	@FXML private Slider timeline;
+	@FXML private Label playTime;
+	private Duration dura;
 	Stage window = Main.window;
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -58,7 +64,31 @@ public class MediaViewController implements Initializable{
 		DoubleProperty height = mv.fitHeightProperty();
 		width.bind(Bindings.selectDouble(mv.sceneProperty(), "width"));
 		height.bind(Bindings.selectDouble(mv.sceneProperty(), "height"));	
+		timeline.setMinWidth(50);
+		timeline.setMaxWidth(Double.MAX_VALUE);
 		volumeSlider.setValue(mp.getVolume() *100);
+		timeline.valueProperty().addListener(new InvalidationListener() {
+			
+			@Override
+			public void invalidated(Observable observable) {
+				if (timeline.isValueChanging()) {
+					mp.seek(dura.multiply(timeline.getValue()/100));
+				}
+			}
+		});
+		mp.currentTimeProperty().addListener(new InvalidationListener() {
+			
+			@Override
+			public void invalidated(Observable observable) {
+				updateValues();
+			}
+		});
+		mp.setOnReady(new  Runnable() {
+			public void run() {
+				dura = mp.getMedia().getDuration();
+				updateValues();
+			}
+		});
 		volumeSlider.valueProperty().addListener(new InvalidationListener() {
 			
 			@Override
@@ -84,6 +114,7 @@ public class MediaViewController implements Initializable{
 			@Override
 			public void handle(Event e) {
 				toolbar.setVisible(true);
+				window.getScene().setCursor(Cursor.DEFAULT);
 				return;
 			}
 		});
@@ -91,10 +122,26 @@ public class MediaViewController implements Initializable{
 			
 			@Override
 			public void run() {
-				mp.stop();
-		// change play button graphic? 
+				mp.stop(); 
 				toggleButton.setSelected(true);
+				window.getScene().setCursor(Cursor.DEFAULT);
+				toolbar.setVisible(true);
 				return;
+			}
+		});
+		borderPane.setOnMouseClicked(new EventHandler() {
+			@Override
+			public void handle(Event e) {
+				if (toolbar.isVisible()){
+					toolbar.setVisible(false);
+					window.getScene().setCursor(Cursor.NONE);
+					return;
+				}
+				else {
+					toolbar.setVisible(true);
+					window.getScene().setCursor(Cursor.DEFAULT);
+					return;
+				}
 			}
 		});
 	}
@@ -140,5 +187,68 @@ public class MediaViewController implements Initializable{
 			return;
 		}
 	}
-	
+	public void toMainScreen(ActionEvent e){
+		window.setScene(Main.scene);
+		mp.stop();
+	}
+	protected void updateValues() {
+		  if (playTime != null && timeline != null && volumeSlider != null) {
+		     Platform.runLater(new Runnable() {
+		        @SuppressWarnings("deprecation")
+				public void run() {
+		          Duration currentTime = mp.getCurrentTime();
+		          playTime.setText(formatTime(currentTime, dura));
+		          timeline.setDisable(dura.isUnknown());
+		          if (!timeline.isDisabled() 
+		            && dura.greaterThan(Duration.ZERO) 
+		            && !timeline.isValueChanging()) {
+		              timeline.setValue((currentTime.divide(dura)).toMillis()
+		                  * 100.0);
+		          }
+		          if (!volumeSlider.isValueChanging()) {
+		            volumeSlider.setValue((int)Math.round(mp.getVolume() 
+		                  * 100));
+		          }
+		        }
+		     });
+		  }
+		}
+	private static String formatTime(Duration elapsed, Duration duration) {
+		   int intElapsed = (int)Math.floor(elapsed.toSeconds());
+		   int elapsedHours = intElapsed / (60 * 60);
+		   if (elapsedHours > 0) {
+		       intElapsed -= elapsedHours * 60 * 60;
+		   }
+		   int elapsedMinutes = intElapsed / 60;
+		   int elapsedSeconds = intElapsed - elapsedHours * 60 * 60 
+		                           - elapsedMinutes * 60;
+		 
+		   if (duration.greaterThan(Duration.ZERO)) {
+		      int intDuration = (int)Math.floor(duration.toSeconds());
+		      int durationHours = intDuration / (60 * 60);
+		      if (durationHours > 0) {
+		         intDuration -= durationHours * 60 * 60;
+		      }
+		      int durationMinutes = intDuration / 60;
+		      int durationSeconds = intDuration - durationHours * 60 * 60 - 
+		          durationMinutes * 60;
+		      if (durationHours > 0) {
+		         return String.format("%d:%02d:%02d/%d:%02d:%02d", 
+		            elapsedHours, elapsedMinutes, elapsedSeconds,
+		            durationHours, durationMinutes, durationSeconds);
+		      } else {
+		          return String.format("%02d:%02d/%02d:%02d",
+		            elapsedMinutes, elapsedSeconds,durationMinutes, 
+		                durationSeconds);
+		      }
+		      } else {
+		          if (elapsedHours > 0) {
+		             return String.format("%d:%02d:%02d", elapsedHours, 
+		                    elapsedMinutes, elapsedSeconds);
+		            } else {
+		                return String.format("%02d:%02d",elapsedMinutes, 
+		                    elapsedSeconds);
+		            }
+		        }
+		    }
 }

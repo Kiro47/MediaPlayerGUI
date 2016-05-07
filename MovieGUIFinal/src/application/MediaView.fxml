@@ -16,11 +16,15 @@
         <items>
             <ToggleButton fx:id="toggleButton" mnemonicParsing="false" onAction="#mainAction" style="-fx-background-color: #343434;" />
             <ToggleButton fx:id="fullscreen" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#fullscreen" style="-fx-background-color: #343434;" textAlignment="RIGHT" />
-            <Slider fx:id="volumeSlider" style="-fx-background-color: #343434;">
+            <Label text="Vol" textFill="WHITE" />
+            <Slider fx:id="volumeSlider" prefHeight="14.0" prefWidth="78.0" style="-fx-background-color: #343434;">
                <effect>
                   <DropShadow />
                </effect>
             </Slider>
+            <Label fx:id="playTime" textFill="WHITE" />
+            <Slider fx:id="timeline" prefHeight="14.0" prefWidth="352.0" />
+            <Button mnemonicParsing="false" onAction="#toMainScreen" style="-fx-background-color: #343434;" text="Exit" textFill="WHITE" />
         </items>
       </ToolBar>
    </bottom>
